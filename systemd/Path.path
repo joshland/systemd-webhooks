@@ -3,7 +3,7 @@ Description="Monitor a file for changes, trigger the pipeline."
 
 [Path]
 #PathModified doesn't react to touch
-PathChanged=/srv/webhooks/notices/TARGET
+PathChanged=/path/to/notices/TARGET
 
 [Install]
 WantedBy=default.target
