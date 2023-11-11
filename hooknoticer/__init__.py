@@ -87,9 +87,13 @@ def create_app(config_name='development'):
     app.config.from_object(config.config[config_name])               # Load static app config, configure loguru.
     yamldata = yaml.safe_load(open(app.config['CONFIG_FILE'], 'r')) # update from yaml config
     app.config.update(yamldata)
+    app.config['RepoMap']['__reserved'] = {'_test':'startup_check'}
 
     logger.start(app.config['LOGFILE'], level=app.config['LOG_LEVEL'], format="{time} {level} {message}", backtrace=app.config['LOG_BACKTRACE'], rotation='25 MB')
     app.logger.addHandler(InterceptHandler()) # Add's loguru
+
+    #check permissions:
+    target = make_notice(app.config['RepoMap'],app.config['NOTICE_PATH'], "__reserved", '_test')
 
     @app.route('/githubPush',methods=['POST'])
     def githubPush():
@@ -112,7 +116,7 @@ def create_app(config_name='development'):
         elif eventType == 'ping':
             repo = data["repository"]["full_name"]
             logger.info(f"Ping {data['repository']['id']}[{repo}]")
-            response_data = {'Repo': repo, 'ping': 'ping'}
+            response_data = {'Repo': repo, 'ping': 'pong'}
         elif eventType == 'issue':
             logger.info(f'Issue {data["issue"]["title"]} {data["action"]}')
             logger.info(f'{data["issue"]["body"]}')
