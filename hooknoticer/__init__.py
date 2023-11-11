@@ -84,7 +84,8 @@ def create_app(config_name='development'):
     """ flask app factory for answering github notices """
     app = Flask(__name__, instance_relative_config=True)
 
-    app.config.from_object(config.config[config_name])               # Load static app config, configure loguru.
+    env = os.environ.get('FLASK_CONFIG', config_name)
+    app.config.from_object(config.config[env])               # Load static app config, configure loguru.
     yamldata = yaml.safe_load(open(app.config['CONFIG_FILE'], 'r')) # update from yaml config
     app.config.update(yamldata)
     app.config['RepoMap']['__reserved'] = {'_test':'startup_check'}

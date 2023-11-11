@@ -8,7 +8,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'SUPER-SECRET'
     STARTUP_CONFIG = os.environ.get('STARTUP_CONFIG') or ''
-    NOTICE_PATH = os.environ.get('NOTICE_PATH') or 'SUPER-SECRET'
+    NOTICE_PATH = os.environ.get('NOTICE_PATH') or '/tmp'
     LOGFILE = "log.log"
 
 class DevelopmentConfig(Config):

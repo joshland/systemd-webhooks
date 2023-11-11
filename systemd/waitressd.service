@@ -5,8 +5,11 @@ After=network.target
 [Service]
 Type=simple
 User=webhooks
+Environment="FLASK_CONFIG=production"
 WorkingDirectory=/srv/webhooks/waitressd
 ExecStart=/srv/webhooks/waitressd/venv/bin/waitress-serve --listen=127.0.0.1:8001 --call web:create_app
+StandardOutput=journal+console
+StandardError=inherit
 Restart=always
 
 [Install]
