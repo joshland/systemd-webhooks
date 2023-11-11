@@ -1,3 +1,6 @@
+[Unit]
+Description="Monitor a file for changes, trigger the pipeline."
+
 [Path]
 PathModified=/srv/webhooks/notices/<RepoMap Name>
 

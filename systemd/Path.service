@@ -1,5 +1,8 @@
+[Unit]
+Description="Pipeline execution for webhooks: <username>"
+
 [Service]
 Type=simple
 User=<username>
-ExecStart=/path/to/pipelines/gavin.sh
+ExecStart=/path/to/pipelines/<username>.sh
 WorkingDirectory=/path/to/WorkingDirectory
