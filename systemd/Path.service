@@ -1,8 +1,8 @@
 [Unit]
-Description="Pipeline execution for webhooks: <username>"
+Description="Pipeline execution for webhooks: TARGET"
 
 [Service]
 Type=simple
-User=<username>
-ExecStart=/path/to/pipelines/<username>.sh
+User=TARGET
+ExecStart=/path/to/pipelines/TARGET.sh
 WorkingDirectory=/path/to/WorkingDirectory

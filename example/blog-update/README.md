@@ -54,4 +54,9 @@ for each Repo, go to Settings -> WebHooks.
 
 ### Testing
 
+Check your new Units with this
+
+     systemd-analyze verify /path/to/your/*.service
+     systemd-analyze verify /path/to/your/*.path
+
 Setup ngrok for effective testing.  It provides the most seamless way to ensure that each piece is fully functional, allows replay, and lets you work with properly signed messages.
