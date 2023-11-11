@@ -11,6 +11,8 @@ import base64
 import logging
 from pathlib import Path
 
+from typing import Union
+
 # create a custom handler
 class InterceptHandler(logging.Handler):
     def emit(self, record):
@@ -32,6 +34,13 @@ def commit_stats(commit: list):
 
     return added, modified, removed
 
+def calculate_payload(key: str, payload: Union[str, bytes]):
+    """ create a sha256 hash """
+    if isinstance(payload, (str)):
+        payload = payload.encode()
+    return hmac.new(key.encode(), payload, hashlib.sha256).hexdigest()
+
+
 def verify_payload(key: str, signature: str, payload: str):
     ''' key is the shared secret
         signature is the contents of the X-Hub-Signature-256 field
@@ -43,7 +52,7 @@ def verify_payload(key: str, signature: str, payload: str):
 
     hmac_id, hmac_sig = signature.split('=')
 
-    digest = hmac.new(key.encode(), payload, hashlib.sha256).hexdigest()
+    digest = calculate_payload(key, payload)
 
     if digest != hmac_sig:
         logger.warning(f'{hmac_sig}: GitHub.')
@@ -67,7 +76,7 @@ def make_notice(repo_xref, notice_path, repo, branch):
     fname = os.path.join(notice_path, target)
     
     Path(fname).touch(mode=0o644, exist_ok=True)
-    return True
+    return target
 
 
 # application factory pattern 
@@ -98,20 +107,29 @@ def create_app(config_name='development'):
             branch = data['ref']
             added, modified, removed = commit_stats(data['commits'])
             logger.info(f'Push Event {branch} [{repo}][a:{added}/m:{modified}/d:{removed}]')
-            make_notice(app.config['RepoMap'],app.config['NOTICE_PATH'], repo, branch)
+            target = make_notice(app.config['RepoMap'],app.config['NOTICE_PATH'], repo, branch)
+            response_data = {'Repo': repo, 'Branch': branch, 'stats': [added, modified, removed], 'target': target}
         elif eventType == 'ping':
             repo = data["repository"]["full_name"]
             logger.info(f"Ping {data['repository']['id']}[{repo}]")
+            response_data = {'Repo': repo, 'ping': 'ping'}
         elif eventType == 'issue':
             logger.info(f'Issue {data["issue"]["title"]} {data["action"]}')
             logger.info(f'{data["issue"]["body"]}')
             logger.info(f'{data["issue"]["url"]}')
             logger.warn(f'No handler for this event type.')
+            response_data = {'Factoid': 'No Handler'}
         else:
+            response_data = {'Factoid': 'No Handler'}
             logger.warn(f'No handler for this event type: {eventType}')
             pass
-        
-        return data
+
+        response_json = json.dumps(response_data)
+        response = app.response_class(response=response_json,
+                                      status=200,
+                                      mimetype='application/json')
+        response.headers['X-Local-Signature-256'] = f"sha256={calculate_payload(app.config.get('SECRET_KEY',''),response_json.encode())}"
+        return response
 
 
     return app
