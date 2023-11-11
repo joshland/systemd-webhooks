@@ -42,3 +42,16 @@ It runs the pipeline as the individual user.
 I stored the pipeline in /srv/pipelines, which all call, but it expects the user and working directory to be set.
 
 
+### GitHub
+
+for each Repo, go to Settings -> WebHooks.
+
+ - New Webhooks:
+   - URL, in the default code, pushes should be sent to /githubPush, aka https://blogs.company.com/githubPush
+   - Content Type: application/json
+   - Set the secret-key, use the same value for both Github and in your config Yaml file.
+
+
+### Testing
+
+Setup ngrok for effective testing.  It provides the most seamless way to ensure that each piece is fully functional, allows replay, and lets you work with properly signed messages.
