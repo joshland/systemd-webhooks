@@ -106,13 +106,20 @@ def create_app(config_name='development'):
         if not verify_payload(app.config.get('SECRET_KEY',''),signature, request.data):  # if this doesn't match, verify your SECRET_KEY
             return "Record not found", 400
 
+        response_code = 200
         if eventType == 'push': # Primary Event trigger.
             repo = data["repository"]["full_name"]
             branch = data['ref']
             added, modified, removed = commit_stats(data['commits'])
             logger.info(f'Push Event {branch} [{repo}][a:{added}/m:{modified}/d:{removed}]')
-            target = make_notice(app.config['RepoMap'],app.config['NOTICE_PATH'], repo, branch)
-            response_data = {'Repo': repo, 'Branch': branch, 'stats': [added, modified, removed], 'target': target}
+            response_data = {'Repo': repo, 'Branch': branch, 'stats': [added, modified, removed]}
+            try:
+                target = make_notice(app.config['RepoMap'],app.config['NOTICE_PATH'], repo, branch)
+            except PermissionError:
+                response_code = 507
+                response_data['status'] = 'Permission Denied'
+                pass
+            response_data['target'] = target
         elif eventType == 'ping':
             repo = data["repository"]["full_name"]
             logger.info(f"Ping {data['repository']['id']}[{repo}]")
@@ -130,7 +137,7 @@ def create_app(config_name='development'):
 
         response_json = json.dumps(response_data)
         response = app.response_class(response=response_json,
-                                      status=200,
+                                      status=response_code,
                                       mimetype='application/json')
         response.headers['X-Local-Signature-256'] = f"sha256={calculate_payload(app.config.get('SECRET_KEY',''),response_json.encode())}"
         return response
