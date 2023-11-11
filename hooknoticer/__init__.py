@@ -11,7 +11,6 @@ import base64
 import logging
 from pathlib import Path
 
-
 # create a custom handler
 class InterceptHandler(logging.Handler):
     def emit(self, record):
@@ -33,7 +32,11 @@ def commit_stats(commit: list):
 
     return added, modified, removed
 
-def verify_payload(key, signature, payload):
+def verify_payload(key: str, signature: str, payload: str):
+    ''' key is the shared secret
+        signature is the contents of the X-Hub-Signature-256 field
+        Payload is the raw json reply
+    '''
     if key.strip() == '':
         logger.error(f'Empty Key Passed to Payload Verification.')
         pass
@@ -51,7 +54,9 @@ def verify_payload(key, signature, payload):
     return digest == hmac_sig
 
 def make_notice(repo_xref, notice_path, repo, branch):
-    """ make a notice in notice_path for repo"""
+    """ uses the RepoMap from the config.yaml to lookup file names, touches the file.
+    Properly configure SystemD Path files will be watching for the filename, which will trigger the pipeline actions.
+    make a notice in notice_path for repo"""
     logger.debug(f'{notice_path} {repo} {branch}')
 
     target = repo_xref.get(repo,{}).get(branch,'')
@@ -67,25 +72,28 @@ def make_notice(repo_xref, notice_path, repo, branch):
 
 # application factory pattern 
 def create_app(config_name='development'):
+    """ flask app factory for answering github notices """
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_object(config.config[config_name])
-    yamldata = yaml.safe_load(open(app.config['CONFIG_FILE'], 'r'))
+
+    app.config.from_object(config.config[config_name])               # Load static app config, configure loguru.
+    yamldata = yaml.safe_load(open(app.config['CONFIG_FILE'], 'r')) # update from yaml config
     app.config.update(yamldata)
 
     logger.start(app.config['LOGFILE'], level=app.config['LOG_LEVEL'], format="{time} {level} {message}", backtrace=app.config['LOG_BACKTRACE'], rotation='25 MB')
-    app.logger.addHandler(InterceptHandler())
+    app.logger.addHandler(InterceptHandler()) # Add's loguru
 
     @app.route('/githubPush',methods=['POST'])
     def githubPush():
+        ''' flask route request, main handler.  This is built purely for push and ping, but you can extend it is needed.'''
 
         data = request.json
-        eventType = request.headers.get('X-Github-Event')
+        eventType = request.headers.get('X-Github-Event')  # push/ping/issue, etc
         signature = request.headers.get('X-Hub-Signature-256')
 
-        if not verify_payload(app.config.get('SECRET_KEY',''),signature, request.data):
+        if not verify_payload(app.config.get('SECRET_KEY',''),signature, request.data):  # if this doesn't match, verify your SECRET_KEY
             return "Record not found", 400
 
-        if eventType == 'push':
+        if eventType == 'push': # Primary Event trigger.
             repo = data["repository"]["full_name"]
             branch = data['ref']
             added, modified, removed = commit_stats(data['commits'])
@@ -98,6 +106,10 @@ def create_app(config_name='development'):
             logger.info(f'Issue {data["issue"]["title"]} {data["action"]}')
             logger.info(f'{data["issue"]["body"]}')
             logger.info(f'{data["issue"]["url"]}')
+            logger.warn(f'No handler for this event type.')
+        else:
+            logger.warn(f'No handler for this event type: {eventType}')
+            pass
         
         return data
 
