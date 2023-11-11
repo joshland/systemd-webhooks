@@ -6,3 +6,6 @@ Type=simple
 User=TARGET
 ExecStart=/path/to/pipelines/TARGET.sh
 WorkingDirectory=/path/to/WorkingDirectory
+
+[Install]
+WantedBy=multi-user.target
