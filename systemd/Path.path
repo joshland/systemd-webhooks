@@ -1,2 +1,5 @@
 [Path]
-PathModified=/srv/webhooks/waitressd/notices/@user
+PathModified=/srv/webhooks/notices/<RepoMap Name>
+
+[Install]
+WantedBy=default.target

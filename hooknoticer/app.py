@@ -14,13 +14,15 @@ class InterceptHandler(logging.Handler):
 
 def configure_logging(flask_app: Flask):
     path = Path(flask_app.config['LOG_PATH'])
+    loglevel = Path(flask_app.config['LOG_LEVEL'])
+
     if not path.exists():
         path.mkdir(parents=True)
     log_name = Path(path, 'hooklog.log')
 
 
-    logging.basicConfig(handlers=[InterceptHandler(level='INFO')], level='INFO')
-    logger.configure(handlers=[{"sink": sys.stderr, "level": 'INFO'}])
+    logging.basicConfig(handlers=[InterceptHandler(level='INFO')], level=loglevel)
+    logger.configure(handlers=[{"sink": sys.stderr, "level": loglevel}])
     logger.add(
-        log_name, rotation="500 MB", encoding='utf-8', colorize=False, level='INFO'
+        log_name, rotation="500 MB", encoding='utf-8', colorize=False, level=loglevel
     )   # this logs to file

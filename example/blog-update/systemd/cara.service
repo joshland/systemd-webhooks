@@ -1,0 +1,5 @@
+[Service]
+Type=simple
+User=cara
+ExecStart=/srv/pipelines/blogupdate.sh
+WorkingDirectory=/blogs/cara

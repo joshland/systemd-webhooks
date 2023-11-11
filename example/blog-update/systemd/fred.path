@@ -1,0 +1,5 @@
+[Path]
+PathModified=/srv/webhooks/notices/blag_fred
+
+[Install]
+WantedBy=default.target

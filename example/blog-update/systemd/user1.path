@@ -1,0 +1,5 @@
+[Path]
+PathModified=/srv/webhooks/notices/blag_user1
+
+[Install]
+WantedBy=default.target

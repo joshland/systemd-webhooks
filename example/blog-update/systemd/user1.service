@@ -1,0 +1,5 @@
+[Service]
+Type=simple
+User=user1
+ExecStart=/srv/pipelines/blogupdate.sh
+WorkingDirectory=/blogs/user1

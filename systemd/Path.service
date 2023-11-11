@@ -1,4 +1,5 @@
 [Service]
-Type=oneshot
-User=gavin
-ExecStart=/srv/daemon/gavin.sh
+Type=simple
+User=<username>
+ExecStart=/path/to/pipelines/gavin.sh
+WorkingDirectory=/path/to/WorkingDirectory
