@@ -1,0 +1,15 @@
+SECRET_KEY:  KFQXEib5ZryRm3EmKqa5Ufb4NSRSesuLbexTcCtiRQwViF5cUz7yX7qdtJEqjbJw
+NOTICE_PATH: /home/joshua/_git/systemd-webhooks/notices
+
+RepoMap:
+  # repository.full_name
+  joshland/systemd-webhooks:
+    # ref
+    refs/heads/master: framework
+  ## From the blogs repo
+  ## Actions to take on branch commit.
+  joshland/blags:
+    refs/heads/Cara': 'blog_cara'
+    refs/heads/Fred': 'blog_fred'
+    refs/heads/Doug': 'blog_doug'
+    refs/heads/master': 'blog_gavin'
