@@ -1,0 +1,13 @@
+[Unit]
+Description=Waitress Webhooks
+After=network.target
+
+[Service]
+Type=simple
+User=webhooks
+WorkingDirectory=/srv/webhooks/waitressd
+ExecStart=/path/to/venv/bin/waitress-serve --listen=127.0.0.1:8001 app.wsgi:application
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

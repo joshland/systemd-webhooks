@@ -1,0 +1,8 @@
+nikola
+jinja2
+aiohttp
+watchdog
+flask
+loguru
+pyyaml
+waitress

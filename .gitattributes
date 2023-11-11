@@ -1,0 +1,6 @@
+*.cfg -lf
+*.txt -lf
+*.yml -lf
+*.md -lf
+*.j2 -lf
+*.service -lf
